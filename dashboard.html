@@ -1,0 +1,267 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dashboard - Farm Weather Advisory</title>
+    
+    <!-- PWA Meta Tags -->
+    <meta name="description" content="Smart irrigation advisory dashboard">
+    <meta name="theme-color" content="#10b981">
+    <link rel="manifest" href="manifest.json">
+    <link rel="apple-touch-icon" href="icons/icon-192x192.png">
+    
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        primary: '#10b981',
+                        secondary: '#059669',
+                    }
+                }
+            }
+        }
+    </script>
+</head>
+<body class="bg-gray-50">
+    <!-- Navigation -->
+    <nav class="bg-white shadow-lg">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="flex justify-between h-16">
+                <div class="flex items-center">
+                    <i class="fas fa-seedling text-primary text-3xl mr-3"></i>
+                    <span class="text-2xl font-bold text-gray-800">Farm Weather Advisory</span>
+                </div>
+                <div class="flex items-center space-x-4">
+                    <!-- Language Switcher -->
+                    <div class="flex items-center space-x-2">
+                        <i class="fas fa-language text-gray-600"></i>
+                        <select id="languageSelector" onchange="setLanguage(this.value)" 
+                            class="px-3 py-1 border rounded text-sm focus:outline-none focus:ring-2 focus:ring-primary">
+                            <option value="en">English</option>
+                            <option value="sw">Kiswahili</option>
+                        </select>
+                    </div>
+                    <a href="dashboard_iot.html" class="bg-gradient-to-r from-purple-500 to-indigo-600 text-white px-4 py-2 rounded-lg font-semibold hover:from-purple-600 hover:to-indigo-700 transition flex items-center">
+                        <i class="fas fa-microchip mr-2"></i>IoT Dashboard
+                    </a>
+                    <span id="userName" class="text-gray-700"></span>
+                    <button onclick="showProfileModal()" class="text-gray-700 hover:text-primary transition">
+                        <i class="fas fa-user-circle text-2xl"></i>
+                    </button>
+                    <button onclick="logout()" class="text-red-600 hover:text-red-700 transition">
+                        <i class="fas fa-sign-out-alt text-xl"></i>
+                    </button>
+                </div>
+            </div>
+        </div>
+    </nav>
+
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+        <!-- Welcome Section -->
+        <div class="mb-8">
+            <h1 class="text-3xl font-bold text-gray-900 mb-2">Welcome to Your Dashboard</h1>
+            <p class="text-gray-600">Monitor your farm's irrigation needs and weather conditions</p>
+        </div>
+
+        <!-- Farm Profile Alert -->
+        <div id="profileAlert" class="hidden bg-yellow-100 border-l-4 border-yellow-500 text-yellow-700 p-4 mb-6 rounded">
+            <p class="font-bold">Complete Your Farm Profile</p>
+            <p>Please set up your farm profile to get personalized irrigation recommendations.</p>
+            <button onclick="showProfileModal()" class="mt-2 bg-yellow-500 text-white px-4 py-2 rounded hover:bg-yellow-600">
+                Set Up Profile
+            </button>
+        </div>
+
+        <!-- 7-Day Forecast Container -->
+        <div id="forecastContainer"></div>
+
+        <!-- Weather & Advisory Section -->
+        <div class="grid md:grid-cols-2 gap-6 mb-6">
+            <!-- Weather Card -->
+            <div class="bg-white rounded-xl shadow-lg p-6">
+                <div class="flex items-center justify-between mb-4">
+                    <h2 class="text-2xl font-bold text-gray-900">Current Weather</h2>
+                    <button onclick="refreshWeather()" class="text-primary hover:text-secondary">
+                        <i class="fas fa-sync-alt"></i>
+                    </button>
+                </div>
+                <div id="weatherContent">
+                    <div class="text-center py-8">
+                        <i class="fas fa-spinner fa-spin text-4xl text-primary"></i>
+                        <p class="mt-2 text-gray-600">Loading weather data...</p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Irrigation Advisory Card -->
+            <div class="bg-white rounded-xl shadow-lg p-6">
+                <h2 class="text-2xl font-bold text-gray-900 mb-4">Irrigation Advisory</h2>
+                <div id="advisoryContent">
+                    <div class="text-center py-8">
+                        <i class="fas fa-tint text-4xl text-primary mb-2"></i>
+                        <p class="text-gray-600">Set up your farm profile to get recommendations</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Charts Section -->
+        <div class="grid md:grid-cols-2 gap-6 mb-6">
+            <!-- Water Usage Chart -->
+            <div class="bg-white rounded-xl shadow-lg p-6">
+                <h2 class="text-xl font-bold text-gray-900 mb-4">Water Usage Trend (Last 7 Days)</h2>
+                <canvas id="waterChart"></canvas>
+            </div>
+
+            <!-- Weather Conditions Chart -->
+            <div class="bg-white rounded-xl shadow-lg p-6">
+                <h2 class="text-xl font-bold text-gray-900 mb-4">Weather Conditions (Last 7 Days)</h2>
+                <canvas id="weatherChart"></canvas>
+            </div>
+        </div>
+
+        <!-- Educational Tips -->
+        <div class="bg-gradient-to-r from-primary to-secondary rounded-xl shadow-lg p-6 text-white">
+            <h2 class="text-2xl font-bold mb-4">
+                <i class="fas fa-lightbulb mr-2"></i>Irrigation Tip of the Day
+            </h2>
+            <p id="dailyTip" class="text-lg"></p>
+        </div>
+    </div>
+
+    <!-- Farm Profile Modal -->
+    <div id="profileModal" class="hidden fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+        <div class="bg-white rounded-xl shadow-2xl p-8 max-w-2xl w-full mx-4 max-h-screen overflow-y-auto">
+            <div class="flex justify-between items-center mb-6">
+                <h2 class="text-2xl font-bold text-gray-900">Farm Profile</h2>
+                <button onclick="closeProfileModal()" class="text-gray-500 hover:text-gray-700">
+                    <i class="fas fa-times text-2xl"></i>
+                </button>
+            </div>
+
+            <form id="profileForm" class="space-y-4">
+                <div class="grid md:grid-cols-2 gap-4">
+                    <div>
+                        <label class="block text-gray-700 font-semibold mb-2">Farm Name</label>
+                        <input type="text" id="farm_name" name="farm_name"
+                            class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary"
+                            placeholder="My Farm">
+                    </div>
+
+                    <div>
+                        <label class="block text-gray-700 font-semibold mb-2">County *</label>
+                        <select id="location" name="location" required
+                            class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary">
+                            <option value="">Select County</option>
+                            <option value="Mombasa">Mombasa</option>
+                            <option value="Kwale">Kwale</option>
+                            <option value="Kilifi">Kilifi</option>
+                            <option value="Tana River">Tana River</option>
+                            <option value="Lamu">Lamu</option>
+                            <option value="Taita-Taveta">Taita-Taveta</option>
+                            <option value="Garissa">Garissa</option>
+                            <option value="Wajir">Wajir</option>
+                            <option value="Mandera">Mandera</option>
+                            <option value="Marsabit">Marsabit</option>
+                            <option value="Isiolo">Isiolo</option>
+                            <option value="Meru">Meru</option>
+                            <option value="Tharaka-Nithi">Tharaka-Nithi</option>
+                            <option value="Embu">Embu</option>
+                            <option value="Kitui">Kitui</option>
+                            <option value="Machakos">Machakos</option>
+                            <option value="Makueni">Makueni</option>
+                            <option value="Nyandarua">Nyandarua</option>
+                            <option value="Nyeri">Nyeri</option>
+                            <option value="Kirinyaga">Kirinyaga</option>
+                            <option value="Murang'a">Murang'a</option>
+                            <option value="Kiambu">Kiambu</option>
+                            <option value="Turkana">Turkana</option>
+                            <option value="West Pokot">West Pokot</option>
+                            <option value="Samburu">Samburu</option>
+                            <option value="Trans Nzoia">Trans Nzoia</option>
+                            <option value="Uasin Gishu">Uasin Gishu</option>
+                            <option value="Elgeyo-Marakwet">Elgeyo-Marakwet</option>
+                            <option value="Nandi">Nandi</option>
+                            <option value="Baringo">Baringo</option>
+                            <option value="Laikipia">Laikipia</option>
+                            <option value="Nakuru">Nakuru</option>
+                            <option value="Narok">Narok</option>
+                            <option value="Kajiado">Kajiado</option>
+                            <option value="Kericho">Kericho</option>
+                            <option value="Bomet">Bomet</option>
+                            <option value="Kakamega">Kakamega</option>
+                            <option value="Vihiga">Vihiga</option>
+                            <option value="Bungoma">Bungoma</option>
+                            <option value="Busia">Busia</option>
+                            <option value="Siaya">Siaya</option>
+                            <option value="Kisumu">Kisumu</option>
+                            <option value="Homa Bay">Homa Bay</option>
+                            <option value="Migori">Migori</option>
+                            <option value="Kisii">Kisii</option>
+                            <option value="Nyamira">Nyamira</option>
+                            <option value="Nairobi">Nairobi</option>
+                        </select>
+                    </div>
+
+                    <div>
+                        <label class="block text-gray-700 font-semibold mb-2">Crop Type *</label>
+                        <select id="crop_type" name="crop_type" required
+                            class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary">
+                            <option value="">Select Crop</option>
+                            <option value="maize">Maize</option>
+                            <option value="beans">Beans</option>
+                            <option value="tomatoes">Tomatoes</option>
+                            <option value="cabbage">Cabbage</option>
+                            <option value="potatoes">Potatoes</option>
+                            <option value="wheat">Wheat</option>
+                            <option value="rice">Rice</option>
+                            <option value="vegetables">Vegetables</option>
+                            <option value="fruits">Fruits</option>
+                        </select>
+                    </div>
+
+                    <div>
+                        <label class="block text-gray-700 font-semibold mb-2">Soil Type *</label>
+                        <select id="soil_type" name="soil_type" required
+                            class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary">
+                            <option value="">Select Soil</option>
+                            <option value="sandy">Sandy</option>
+                            <option value="loamy">Loamy</option>
+                            <option value="clay">Clay</option>
+                            <option value="silt">Silt</option>
+                        </select>
+                    </div>
+
+                    <div>
+                        <label class="block text-gray-700 font-semibold mb-2">Farm Size (acres)</label>
+                        <input type="number" id="farm_size" name="farm_size" step="0.1"
+                            class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary"
+                            placeholder="5.0">
+                    </div>
+                </div>
+
+                <div class="flex space-x-4 mt-6">
+                    <button type="submit" class="flex-1 bg-primary text-white py-3 rounded-lg font-semibold hover:bg-secondary transition">
+                        Save Profile
+                    </button>
+                    <button type="button" onclick="closeProfileModal()" class="flex-1 bg-gray-300 text-gray-700 py-3 rounded-lg font-semibold hover:bg-gray-400 transition">
+                        Cancel
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <script src="js/i18n.js"></script>
+    <script src="js/dashboard-i18n.js"></script>
+    <script src="js/voice.js"></script>
+    <script src="js/forecast.js"></script>
+    <script src="js/dashboard.js"></script>
+    <script src="js/pwa.js"></script>
+</body>
+</html>

@@ -1,0 +1,224 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Farm Weather Advisory - Smart Irrigation for Small-Scale Farmers</title>
+    
+    <!-- PWA Meta Tags -->
+    <meta name="description" content="Smart irrigation advisory system for small-scale farmers in Kenya">
+    <meta name="theme-color" content="#10b981">
+    <link rel="manifest" href="manifest.json">
+    <link rel="apple-touch-icon" href="icons/icon-192x192.png">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <meta name="apple-mobile-web-app-title" content="Farm Weather">
+    
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        primary: '#10b981',
+                        secondary: '#059669',
+                        accent: '#34d399'
+                    }
+                }
+            }
+        }
+    </script>
+</head>
+<body class="bg-gradient-to-br from-green-50 to-emerald-100 min-h-screen">
+    <!-- Navigation -->
+    <nav class="bg-white shadow-lg">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="flex justify-between h-16">
+                <div class="flex items-center">
+                    <i class="fas fa-seedling text-primary text-3xl mr-3"></i>
+                    <span class="text-2xl font-bold text-gray-800">Farm Weather Advisory</span>
+                </div>
+                <div class="flex items-center space-x-4">
+                    <a href="login.html" class="text-gray-700 hover:text-primary transition">Login</a>
+                    <a href="register.html" class="bg-primary text-white px-6 py-2 rounded-lg hover:bg-secondary transition">Get Started</a>
+                </div>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Hero Section -->
+    <section class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-20">
+        <div class="text-center">
+            <h1 class="text-5xl md:text-6xl font-bold text-gray-900 mb-6">
+                Smart Irrigation Made Simple
+            </h1>
+            <p class="text-xl text-gray-700 mb-8 max-w-3xl mx-auto">
+                Optimize your water usage with real-time weather data and personalized irrigation recommendations. 
+                Save water, improve crop yields, and farm sustainably.
+            </p>
+            <div class="flex justify-center space-x-4">
+                <a href="register.html" class="bg-primary text-white px-8 py-4 rounded-lg text-lg font-semibold hover:bg-secondary transition shadow-lg">
+                    Start Free Today
+                </a>
+                <a href="#features" class="bg-white text-primary px-8 py-4 rounded-lg text-lg font-semibold hover:bg-gray-50 transition shadow-lg">
+                    Learn More
+                </a>
+            </div>
+        </div>
+    </section>
+
+    <!-- Features Section -->
+    <section id="features" class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-16">
+        <h2 class="text-4xl font-bold text-center text-gray-900 mb-12">Why Choose Our Platform?</h2>
+        <div class="grid md:grid-cols-3 gap-8">
+            <!-- Feature 1 -->
+            <div class="bg-white rounded-xl shadow-lg p-8 hover:shadow-xl transition">
+                <div class="bg-primary bg-opacity-10 w-16 h-16 rounded-full flex items-center justify-center mb-4">
+                    <i class="fas fa-cloud-sun text-primary text-3xl"></i>
+                </div>
+                <h3 class="text-2xl font-bold text-gray-900 mb-3">Real-Time Weather Data</h3>
+                <p class="text-gray-600">
+                    Access accurate weather information including temperature, humidity, and rainfall forecasts for your specific location.
+                </p>
+            </div>
+
+            <!-- Feature 2 -->
+            <div class="bg-white rounded-xl shadow-lg p-8 hover:shadow-xl transition">
+                <div class="bg-primary bg-opacity-10 w-16 h-16 rounded-full flex items-center justify-center mb-4">
+                    <i class="fas fa-tint text-primary text-3xl"></i>
+                </div>
+                <h3 class="text-2xl font-bold text-gray-900 mb-3">Smart Irrigation Advice</h3>
+                <p class="text-gray-600">
+                    Get personalized recommendations based on your crop type, soil conditions, and current weather patterns.
+                </p>
+            </div>
+
+            <!-- Feature 3 -->
+            <div class="bg-white rounded-xl shadow-lg p-8 hover:shadow-xl transition">
+                <div class="bg-primary bg-opacity-10 w-16 h-16 rounded-full flex items-center justify-center mb-4">
+                    <i class="fas fa-chart-line text-primary text-3xl"></i>
+                </div>
+                <h3 class="text-2xl font-bold text-gray-900 mb-3">Track Your Progress</h3>
+                <p class="text-gray-600">
+                    Visualize your water usage trends and irrigation history with interactive charts and analytics.
+                </p>
+            </div>
+
+            <!-- Feature 4 -->
+            <div class="bg-white rounded-xl shadow-lg p-8 hover:shadow-xl transition">
+                <div class="bg-primary bg-opacity-10 w-16 h-16 rounded-full flex items-center justify-center mb-4">
+                    <i class="fas fa-user-circle text-primary text-3xl"></i>
+                </div>
+                <h3 class="text-2xl font-bold text-gray-900 mb-3">Personalized Profiles</h3>
+                <p class="text-gray-600">
+                    Create and manage your farm profile with details about your crops, soil type, and location.
+                </p>
+            </div>
+
+            <!-- Feature 5 -->
+            <div class="bg-white rounded-xl shadow-lg p-8 hover:shadow-xl transition">
+                <div class="bg-primary bg-opacity-10 w-16 h-16 rounded-full flex items-center justify-center mb-4">
+                    <i class="fas fa-book-open text-primary text-3xl"></i>
+                </div>
+                <h3 class="text-2xl font-bold text-gray-900 mb-3">Educational Resources</h3>
+                <p class="text-gray-600">
+                    Learn best practices for sustainable irrigation and water conservation through helpful tips and guides.
+                </p>
+            </div>
+
+            <!-- Feature 6 -->
+            <div class="bg-white rounded-xl shadow-lg p-8 hover:shadow-xl transition">
+                <div class="bg-primary bg-opacity-10 w-16 h-16 rounded-full flex items-center justify-center mb-4">
+                    <i class="fas fa-mobile-alt text-primary text-3xl"></i>
+                </div>
+                <h3 class="text-2xl font-bold text-gray-900 mb-3">Easy to Use</h3>
+                <p class="text-gray-600">
+                    Simple, intuitive interface accessible from any device - desktop, tablet, or smartphone.
+                </p>
+            </div>
+        </div>
+    </section>
+
+    <!-- How It Works Section -->
+    <section class="bg-white py-16">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <h2 class="text-4xl font-bold text-center text-gray-900 mb-12">How It Works</h2>
+            <div class="grid md:grid-cols-4 gap-8">
+                <div class="text-center">
+                    <div class="bg-primary text-white w-16 h-16 rounded-full flex items-center justify-center text-2xl font-bold mx-auto mb-4">1</div>
+                    <h3 class="text-xl font-bold text-gray-900 mb-2">Sign Up</h3>
+                    <p class="text-gray-600">Create your free account in minutes</p>
+                </div>
+                <div class="text-center">
+                    <div class="bg-primary text-white w-16 h-16 rounded-full flex items-center justify-center text-2xl font-bold mx-auto mb-4">2</div>
+                    <h3 class="text-xl font-bold text-gray-900 mb-2">Add Farm Details</h3>
+                    <p class="text-gray-600">Enter your crop type, soil, and location</p>
+                </div>
+                <div class="text-center">
+                    <div class="bg-primary text-white w-16 h-16 rounded-full flex items-center justify-center text-2xl font-bold mx-auto mb-4">3</div>
+                    <h3 class="text-xl font-bold text-gray-900 mb-2">Get Recommendations</h3>
+                    <p class="text-gray-600">Receive personalized irrigation advice</p>
+                </div>
+                <div class="text-center">
+                    <div class="bg-primary text-white w-16 h-16 rounded-full flex items-center justify-center text-2xl font-bold mx-auto mb-4">4</div>
+                    <h3 class="text-xl font-bold text-gray-900 mb-2">Track & Optimize</h3>
+                    <p class="text-gray-600">Monitor your water usage and improve</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- IoT Feature Highlight -->
+    <section class="bg-gradient-to-r from-purple-600 to-indigo-700 py-16">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="text-center mb-12">
+                <span class="bg-yellow-400 text-purple-900 px-4 py-2 rounded-full text-sm font-bold">NEW FEATURE</span>
+                <h2 class="text-4xl font-bold text-white mt-4 mb-4">🤖 IoT-Enhanced Smart Dashboard</h2>
+                <p class="text-xl text-purple-100 max-w-3xl mx-auto">
+                    Experience the future of smart farming with real-time sensor monitoring, automated pump control, and AI-driven irrigation decisions
+                </p>
+            </div>
+            <div class="grid md:grid-cols-3 gap-6">
+                <div class="bg-white bg-opacity-10 backdrop-blur-lg rounded-xl p-6 text-white">
+                    <i class="fas fa-tint text-4xl mb-4"></i>
+                    <h3 class="text-xl font-bold mb-2">Live Soil Monitoring</h3>
+                    <p class="text-purple-100">Real-time moisture levels with visual gauges and smart alerts</p>
+                </div>
+                <div class="bg-white bg-opacity-10 backdrop-blur-lg rounded-xl p-6 text-white">
+                    <i class="fas fa-water text-4xl mb-4"></i>
+                    <h3 class="text-xl font-bold mb-2">Automated Control</h3>
+                    <p class="text-purple-100">AI-powered pump control based on sensor data and weather</p>
+                </div>
+                <div class="bg-white bg-opacity-10 backdrop-blur-lg rounded-xl p-6 text-white">
+                    <i class="fas fa-chart-line text-4xl mb-4"></i>
+                    <h3 class="text-xl font-bold mb-2">Advanced Analytics</h3>
+                    <p class="text-purple-100">Interactive charts showing trends and patterns over time</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- CTA Section -->
+    <section class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-20">
+        <div class="bg-gradient-to-r from-primary to-secondary rounded-2xl shadow-2xl p-12 text-center">
+            <h2 class="text-4xl font-bold text-white mb-4">Ready to Optimize Your Irrigation?</h2>
+            <p class="text-xl text-white mb-8">Join hundreds of farmers already saving water and improving yields</p>
+            <a href="register.html" class="bg-white text-primary px-8 py-4 rounded-lg text-lg font-semibold hover:bg-gray-100 transition inline-block">
+                Get Started Now - It's Free
+            </a>
+        </div>
+    </section>
+
+    <!-- Footer -->
+    <footer class="bg-gray-900 text-white py-8">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
+            <p>&copy; 2024 Farm Weather Advisory. All rights reserved.</p>
+            <p class="mt-2 text-gray-400">Empowering farmers with smart irrigation solutions</p>
+        </div>
+    </footer>
+
+    <!-- PWA Script -->
+    <script src="js/pwa.js"></script>
+</body>
+</html>

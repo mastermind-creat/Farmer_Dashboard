@@ -1,0 +1,293 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>IoT Dashboard - Farm Weather Advisory</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        primary: '#10b981',
+                        secondary: '#059669',
+                    }
+                }
+            }
+        }
+    </script>
+    <style>
+        .pump-active { animation: pulse 2s infinite; }
+        @keyframes pulse {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.5; }
+        }
+        .notification-enter {
+            animation: slideIn 0.3s ease-out;
+        }
+        @keyframes slideIn {
+            from { transform: translateX(100%); opacity: 0; }
+            to { transform: translateX(0); opacity: 1; }
+        }
+        .gauge {
+            background: conic-gradient(
+                #10b981 0deg,
+                #10b981 calc(var(--percentage) * 3.6deg),
+                #e5e7eb calc(var(--percentage) * 3.6deg)
+            );
+        }
+    </style>
+</head>
+<body class="bg-gray-50">
+    <!-- Navigation -->
+    <nav class="bg-white shadow-lg">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="flex justify-between h-16">
+                <div class="flex items-center">
+                    <i class="fas fa-seedling text-primary text-3xl mr-3"></i>
+                    <span class="text-2xl font-bold text-gray-800">Smart IoT Dashboard</span>
+                </div>
+                <div class="flex items-center space-x-4">
+                    <a href="dashboard.html" class="text-gray-700 hover:text-primary transition">
+                        <i class="fas fa-chart-line mr-2"></i>Classic View
+                    </a>
+                    <span id="userName" class="text-gray-700"></span>
+                    <button onclick="logout()" class="text-red-600 hover:text-red-700 transition">
+                        <i class="fas fa-sign-out-alt text-xl"></i>
+                    </button>
+                </div>
+            </div>
+        </div>
+    </nav>
+
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+        <!-- Header with IoT Status -->
+        <div class="flex justify-between items-center mb-6">
+            <div>
+                <h1 class="text-3xl font-bold text-gray-900">IoT-Enabled Smart Irrigation</h1>
+                <p class="text-gray-600">Real-time monitoring and automated control</p>
+            </div>
+            <div id="deviceStatus" class="bg-white px-6 py-3 rounded-lg shadow-md">
+                <div class="flex items-center space-x-2">
+                    <div class="w-3 h-3 bg-green-500 rounded-full animate-pulse"></div>
+                    <span class="font-semibold text-gray-800">Devices Connected</span>
+                    <i class="fas fa-check-circle text-green-500"></i>
+                </div>
+            </div>
+        </div>
+
+        <!-- Notifications Area -->
+        <div id="notificationsContainer" class="fixed top-20 right-4 z-50 space-y-2 max-w-md"></div>
+
+        <!-- IoT Simulation Controls -->
+        <div class="bg-gradient-to-r from-blue-500 to-blue-600 rounded-xl shadow-lg p-6 mb-6 text-white">
+            <div class="flex items-center justify-between mb-4">
+                <h2 class="text-xl font-bold flex items-center">
+                    <i class="fas fa-cog mr-2"></i>IoT Simulation Controls
+                </h2>
+                <button onclick="toggleSimulationPanel()" class="text-white hover:text-blue-100">
+                    <i class="fas fa-chevron-down" id="simPanelIcon"></i>
+                </button>
+            </div>
+            <div id="simulationPanel" class="grid md:grid-cols-3 gap-4">
+                <div>
+                    <label class="block text-sm mb-2">Update Interval (seconds)</label>
+                    <input type="number" id="updateInterval" value="5" min="1" max="60"
+                        class="w-full px-3 py-2 rounded text-gray-800" onchange="updateSimulationSettings()">
+                </div>
+                <div>
+                    <label class="block text-sm mb-2">Weather Condition</label>
+                    <select id="weatherCondition" class="w-full px-3 py-2 rounded text-gray-800" onchange="updateSimulationSettings()">
+                        <option value="sunny">Sunny</option>
+                        <option value="rainy">Rainy</option>
+                        <option value="cloudy">Cloudy</option>
+                    </select>
+                </div>
+                <div>
+                    <label class="block text-sm mb-2">Moisture Fluctuation</label>
+                    <select id="moistureFluctuation" class="w-full px-3 py-2 rounded text-gray-800" onchange="updateSimulationSettings()">
+                        <option value="low">Low (±2%)</option>
+                        <option value="medium" selected>Medium (±5%)</option>
+                        <option value="high">High (±10%)</option>
+                    </select>
+                </div>
+            </div>
+        </div>
+
+        <!-- Main Dashboard Grid -->
+        <div class="grid lg:grid-cols-3 gap-6 mb-6">
+            <!-- Soil Moisture Panel -->
+            <div class="bg-white rounded-xl shadow-lg p-6">
+                <h3 class="text-xl font-bold text-gray-900 mb-4 flex items-center">
+                    <i class="fas fa-tint text-blue-500 mr-2"></i>Soil Moisture
+                </h3>
+                <div class="flex items-center justify-center mb-4">
+                    <div class="relative w-40 h-40">
+                        <svg class="transform -rotate-90 w-40 h-40">
+                            <circle cx="80" cy="80" r="70" stroke="#e5e7eb" stroke-width="12" fill="none"/>
+                            <circle id="moistureCircle" cx="80" cy="80" r="70" stroke="#10b981" 
+                                stroke-width="12" fill="none" stroke-dasharray="440" 
+                                stroke-dashoffset="440" stroke-linecap="round"/>
+                        </svg>
+                        <div class="absolute inset-0 flex items-center justify-center flex-col">
+                            <span id="moistureValue" class="text-4xl font-bold text-gray-900">--</span>
+                            <span class="text-sm text-gray-600">%</span>
+                        </div>
+                    </div>
+                </div>
+                <div id="moistureStatus" class="text-center mb-4">
+                    <span class="px-4 py-2 rounded-full text-sm font-semibold bg-gray-100 text-gray-800">
+                        Initializing...
+                    </span>
+                </div>
+                <p id="moistureAdvisory" class="text-sm text-gray-600 text-center italic">
+                    Waiting for sensor data...
+                </p>
+            </div>
+
+            <!-- Pump Control Panel -->
+            <div class="bg-white rounded-xl shadow-lg p-6">
+                <h3 class="text-xl font-bold text-gray-900 mb-4 flex items-center">
+                    <i class="fas fa-water text-blue-500 mr-2"></i>Pump Control
+                </h3>
+                
+                <!-- Mode Toggle -->
+                <div class="flex space-x-2 mb-4">
+                    <button onclick="setPumpMode('manual')" id="manualModeBtn"
+                        class="flex-1 py-2 px-4 rounded-lg font-semibold transition bg-primary text-white">
+                        Manual
+                    </button>
+                    <button onclick="setPumpMode('auto')" id="autoModeBtn"
+                        class="flex-1 py-2 px-4 rounded-lg font-semibold transition bg-gray-200 text-gray-700">
+                        Automatic
+                    </button>
+                </div>
+
+                <!-- Pump Status Display -->
+                <div class="text-center mb-6">
+                    <div id="pumpIcon" class="text-6xl mb-3">
+                        <i class="fas fa-power-off text-gray-400"></i>
+                    </div>
+                    <div id="pumpStatus" class="text-2xl font-bold text-gray-400">
+                        Pump Idle
+                    </div>
+                    <div id="pumpReason" class="text-sm text-gray-600 mt-2">
+                        Awaiting command
+                    </div>
+                </div>
+
+                <!-- Manual Controls -->
+                <div id="manualControls" class="space-y-3">
+                    <button onclick="togglePump('on')" 
+                        class="w-full bg-green-500 hover:bg-green-600 text-white py-3 rounded-lg font-semibold transition">
+                        <i class="fas fa-play mr-2"></i>Start Pump
+                    </button>
+                    <button onclick="togglePump('off')" 
+                        class="w-full bg-red-500 hover:bg-red-600 text-white py-3 rounded-lg font-semibold transition">
+                        <i class="fas fa-stop mr-2"></i>Stop Pump
+                    </button>
+                </div>
+
+                <!-- Auto Mode Info -->
+                <div id="autoControls" class="hidden bg-blue-50 p-4 rounded-lg">
+                    <p class="text-sm text-gray-700">
+                        <i class="fas fa-info-circle text-blue-500 mr-2"></i>
+                        Pump is controlled automatically based on soil moisture and weather conditions.
+                    </p>
+                </div>
+            </div>
+
+            <!-- Weather Overview -->
+            <div class="bg-white rounded-xl shadow-lg p-6">
+                <h3 class="text-xl font-bold text-gray-900 mb-4 flex items-center">
+                    <i class="fas fa-cloud-sun text-yellow-500 mr-2"></i>Weather Data
+                </h3>
+                <div id="weatherContent" class="space-y-4">
+                    <div class="flex items-center justify-between">
+                        <span class="text-gray-600">Temperature</span>
+                        <span id="tempDisplay" class="text-2xl font-bold text-gray-900">--°C</span>
+                    </div>
+                    <div class="flex items-center justify-between">
+                        <span class="text-gray-600">Humidity</span>
+                        <span id="humidityDisplay" class="text-2xl font-bold text-gray-900">--%</span>
+                    </div>
+                    <div class="flex items-center justify-between">
+                        <span class="text-gray-600">Rainfall</span>
+                        <span id="rainfallDisplay" class="text-2xl font-bold text-gray-900">-- mm</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Real-Time Sensor Feed -->
+        <div class="grid lg:grid-cols-2 gap-6 mb-6">
+            <div class="bg-white rounded-xl shadow-lg p-6 flex flex-col" style="height: 400px;">
+                <h3 class="text-xl font-bold text-gray-900 mb-4 flex items-center flex-shrink-0">
+                    <i class="fas fa-broadcast-tower text-purple-500 mr-2"></i>Live Sensor Feed
+                </h3>
+                <div id="sensorFeed" class="space-y-2 overflow-y-auto flex-1">
+                    <!-- Sensor readings will be added here -->
+                </div>
+            </div>
+
+            <!-- Analytics Chart -->
+            <div class="bg-white rounded-xl shadow-lg p-6 flex flex-col" style="height: 400px;">
+                <div class="flex justify-between items-center mb-4 flex-shrink-0">
+                    <h3 class="text-xl font-bold text-gray-900 flex items-center">
+                        <i class="fas fa-chart-area text-indigo-500 mr-2"></i>Sensor Analytics
+                    </h3>
+                    <select id="timeRange" onchange="updateChartRange()" 
+                        class="px-3 py-1 border rounded text-sm">
+                        <option value="10">Last 10 readings</option>
+                        <option value="20">Last 20 readings</option>
+                        <option value="50">Last 50 readings</option>
+                    </select>
+                </div>
+                <div class="flex-1 relative">
+                    <canvas id="sensorChart"></canvas>
+                </div>
+            </div>
+        </div>
+
+        <!-- Future Integration Section -->
+        <div class="bg-gradient-to-r from-purple-500 to-indigo-600 rounded-xl shadow-lg p-6 text-white">
+            <div class="flex items-start justify-between">
+                <div class="flex-1">
+                    <h3 class="text-2xl font-bold mb-2 flex items-center">
+                        <i class="fas fa-plug mr-3"></i>Connect Real IoT Sensors
+                    </h3>
+                    <p class="mb-4 text-purple-100">
+                        This system is ready to integrate with real hardware sensors. Connect your NodeMCU, ESP32, 
+                        or Raspberry Pi devices to monitor actual field conditions.
+                    </p>
+                    <div class="grid md:grid-cols-3 gap-4 mb-4">
+                        <div class="bg-white bg-opacity-20 rounded-lg p-3">
+                            <i class="fas fa-microchip text-2xl mb-2"></i>
+                            <p class="text-sm font-semibold">ESP32/NodeMCU</p>
+                            <p class="text-xs text-purple-100">WiFi-enabled sensors</p>
+                        </div>
+                        <div class="bg-white bg-opacity-20 rounded-lg p-3">
+                            <i class="fas fa-database text-2xl mb-2"></i>
+                            <p class="text-sm font-semibold">Firebase/MQTT</p>
+                            <p class="text-xs text-purple-100">Real-time data sync</p>
+                        </div>
+                        <div class="bg-white bg-opacity-20 rounded-lg p-3">
+                            <i class="fas fa-mobile-alt text-2xl mb-2"></i>
+                            <p class="text-sm font-semibold">Mobile App</p>
+                            <p class="text-xs text-purple-100">Remote monitoring</p>
+                        </div>
+                    </div>
+                    <button class="bg-white text-purple-600 px-6 py-2 rounded-lg font-semibold hover:bg-purple-50 transition">
+                        <i class="fas fa-book mr-2"></i>View Integration Guide
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="js/dashboard_iot.js"></script>
+</body>
+</html>

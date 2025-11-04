@@ -1,0 +1,50 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Generate PWA Icons</title>
+</head>
+<body>
+    <h1>PWA Icon Generator</h1>
+    <p>Click the button to generate and download all required icons</p>
+    <button onclick="generateIcons()">Generate Icons</button>
+    <div id="output"></div>
+
+    <script>
+        function generateIcons() {
+            const sizes = [72, 96, 128, 144, 152, 192, 384, 512];
+            const output = document.getElementById('output');
+            output.innerHTML = '<h2>Generated Icons:</h2>';
+            
+            sizes.forEach(size => {
+                const canvas = document.createElement('canvas');
+                canvas.width = size;
+                canvas.height = size;
+                const ctx = canvas.getContext('2d');
+                
+                // Background
+                ctx.fillStyle = '#10b981';
+                ctx.fillRect(0, 0, size, size);
+                
+                // Icon (simple seedling representation)
+                ctx.fillStyle = '#ffffff';
+                ctx.font = `${size * 0.5}px Arial`;
+                ctx.textAlign = 'center';
+                ctx.textBaseline = 'middle';
+                ctx.fillText('🌾', size / 2, size / 2);
+                
+                // Convert to download link
+                canvas.toBlob(blob => {
+                    const url = URL.createObjectURL(blob);
+                    const link = document.createElement('a');
+                    link.href = url;
+                    link.download = `icon-${size}x${size}.png`;
+                    link.textContent = `Download ${size}x${size}`;
+                    link.style.display = 'block';
+                    link.style.margin = '5px';
+                    output.appendChild(link);
+                });
+            });
+        }
+    </script>
+</body>
+</html>
