@@ -151,11 +151,24 @@ const originalSetLanguage = setLanguage;
 setLanguage = function(lang) {
     originalSetLanguage(lang);
     translateDashboard();
+    
+    // Sync both language selectors
+    const desktopSelector = document.getElementById('languageSelector');
+    const mobileSelector = document.getElementById('languageSelectorMobile');
+    if (desktopSelector) desktopSelector.value = lang;
+    if (mobileSelector) mobileSelector.value = lang;
 };
 
 // Translate on page load
 document.addEventListener('DOMContentLoaded', () => {
     setTimeout(() => {
         translateDashboard();
+        
+        // Sync selectors on load
+        const lang = currentLanguage || 'en';
+        const desktopSelector = document.getElementById('languageSelector');
+        const mobileSelector = document.getElementById('languageSelectorMobile');
+        if (desktopSelector) desktopSelector.value = lang;
+        if (mobileSelector) mobileSelector.value = lang;
     }, 500);
 });

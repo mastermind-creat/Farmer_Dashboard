@@ -1,0 +1,168 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Quick PWA Check</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 800px;
+            margin: 50px auto;
+            padding: 20px;
+            background: #f5f5f5;
+        }
+        .status {
+            background: white;
+            padding: 20px;
+            margin: 10px 0;
+            border-radius: 8px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+        .success { border-left: 4px solid #10b981; }
+        .error { border-left: 4px solid #ef4444; }
+        .warning { border-left: 4px solid #f59e0b; }
+        pre {
+            background: #1f2937;
+            color: #10b981;
+            padding: 15px;
+            border-radius: 4px;
+            overflow-x: auto;
+        }
+        button {
+            background: #10b981;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 4px;
+            cursor: pointer;
+            margin: 5px;
+        }
+        button:hover {
+            background: #059669;
+        }
+    </style>
+</head>
+<body>
+    <h1>🔍 PWA Quick Check</h1>
+    
+    <div id="results"></div>
+    
+    <div class="status">
+        <h3>Actions:</h3>
+        <button onclick="registerSW()">Register Service Worker</button>
+        <button onclick="checkManifest()">Check Manifest</button>
+        <button onclick="clearAll()">Clear Everything</button>
+        <button onclick="location.reload()">Refresh Page</button>
+    </div>
+
+    <script>
+        const results = document.getElementById('results');
+
+        function log(message, type = 'success') {
+            const div = document.createElement('div');
+            div.className = `status ${type}`;
+            div.innerHTML = `<p>${message}</p>`;
+            results.appendChild(div);
+        }
+
+        function logCode(code) {
+            const pre = document.createElement('pre');
+            pre.textContent = code;
+            results.appendChild(pre);
+        }
+
+        // Check on load
+        window.addEventListener('load', async () => {
+            results.innerHTML = '';
+            
+            // 1. Check Service Worker Support
+            if ('serviceWorker' in navigator) {
+                log('✅ Service Workers are supported', 'success');
+                
+                // Check if already registered
+                const registration = await navigator.serviceWorker.getRegistration('/Farm_Weather/');
+                if (registration) {
+                    log('✅ Service Worker is already registered!', 'success');
+                    logCode(`Scope: ${registration.scope}\nState: ${registration.active ? 'Active' : 'Installing'}`);
+                } else {
+                    log('⚠️ Service Worker not registered yet', 'warning');
+                    log('Click "Register Service Worker" button below', 'warning');
+                }
+            } else {
+                log('❌ Service Workers NOT supported in this browser', 'error');
+            }
+
+            // 2. Check Manifest
+            try {
+                const response = await fetch('/Farm_Weather/manifest.json');
+                if (response.ok) {
+                    const manifest = await response.json();
+                    log('✅ Manifest file found and valid', 'success');
+                    logCode(JSON.stringify(manifest, null, 2));
+                } else {
+                    log(`❌ Manifest not found (Status: ${response.status})`, 'error');
+                }
+            } catch (error) {
+                log(`❌ Error loading manifest: ${error.message}`, 'error');
+            }
+
+            // 3. Check if PWA is installable
+            log('💡 To install: Look for install icon in browser address bar', 'success');
+        });
+
+        // Register Service Worker
+        async function registerSW() {
+            if ('serviceWorker' in navigator) {
+                try {
+                    log('⏳ Registering Service Worker...', 'warning');
+                    const registration = await navigator.serviceWorker.register('/Farm_Weather/service-worker.js');
+                    log('✅ Service Worker registered successfully!', 'success');
+                    logCode(`Scope: ${registration.scope}`);
+                    
+                    // Wait for it to activate
+                    if (registration.installing) {
+                        log('⏳ Service Worker is installing...', 'warning');
+                        registration.installing.addEventListener('statechange', (e) => {
+                            log(`Service Worker state: ${e.target.state}`, 'success');
+                        });
+                    }
+                } catch (error) {
+                    log(`❌ Registration failed: ${error.message}`, 'error');
+                    logCode(error.stack);
+                }
+            }
+        }
+
+        // Check Manifest
+        async function checkManifest() {
+            try {
+                const response = await fetch('/Farm_Weather/manifest.json');
+                const text = await response.text();
+                log('📄 Manifest content:', 'success');
+                logCode(text);
+            } catch (error) {
+                log(`❌ Error: ${error.message}`, 'error');
+            }
+        }
+
+        // Clear everything
+        async function clearAll() {
+            // Unregister service workers
+            const registrations = await navigator.serviceWorker.getRegistrations();
+            for (let registration of registrations) {
+                await registration.unregister();
+            }
+            
+            // Clear caches
+            const cacheNames = await caches.keys();
+            for (let name of cacheNames) {
+                await caches.delete(name);
+            }
+            
+            log('✅ Cleared all service workers and caches', 'success');
+            log('🔄 Refresh the page to start fresh', 'warning');
+        }
+    </script>
+</body>
+</html>

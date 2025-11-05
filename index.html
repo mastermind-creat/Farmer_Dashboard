@@ -9,7 +9,7 @@
     <meta name="description" content="Smart irrigation advisory system for small-scale farmers in Kenya">
     <meta name="theme-color" content="#10b981">
     <link rel="manifest" href="manifest.json">
-    <link rel="apple-touch-icon" href="icons/icon-192x192.png">
+    <link rel="apple-touch-icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 192 192'%3E%3Crect fill='%2310b981' width='192' height='192'/%3E%3Ctext x='96' y='120' font-size='80' text-anchor='middle' fill='white'%3E🌾%3C/text%3E%3C/svg%3E">
     <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
     <meta name="apple-mobile-web-app-title" content="Farm Weather">
@@ -34,14 +34,24 @@
     <!-- Navigation -->
     <nav class="bg-white shadow-lg">
         <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-            <div class="flex justify-between h-16">
-                <div class="flex items-center">
-                    <i class="fas fa-seedling text-primary text-3xl mr-3"></i>
-                    <span class="text-2xl font-bold text-gray-800">Farm Weather Advisory</span>
+            <div class="flex justify-between items-center h-16">
+                <!-- Logo -->
+                <div class="flex items-center flex-shrink-0">
+                    <i class="fas fa-seedling text-primary text-2xl sm:text-3xl mr-2"></i>
+                    <span class="text-lg sm:text-2xl font-bold text-gray-800 hidden xs:inline">Farm Weather Advisory</span>
+                    <span class="text-lg sm:text-2xl font-bold text-gray-800 xs:hidden">Farm Weather</span>
                 </div>
-                <div class="flex items-center space-x-4">
-                    <a href="login.html" class="text-gray-700 hover:text-primary transition">Login</a>
-                    <a href="register.html" class="bg-primary text-white px-6 py-2 rounded-lg hover:bg-secondary transition">Get Started</a>
+                
+                <!-- Desktop Navigation -->
+                <div class="hidden md:flex items-center space-x-4">
+                    <a href="login.html" class="text-gray-700 hover:text-primary transition font-medium">Login</a>
+                    <a href="register.html" class="bg-primary text-white px-6 py-2 rounded-lg hover:bg-secondary transition font-semibold">Get Started</a>
+                </div>
+                
+                <!-- Mobile Navigation -->
+                <div class="flex md:hidden items-center space-x-2">
+                    <a href="login.html" class="text-gray-700 hover:text-primary transition text-sm font-medium">Login</a>
+                    <a href="register.html" class="bg-primary text-white px-4 py-2 rounded-lg hover:bg-secondary transition text-sm font-semibold">Start</a>
                 </div>
             </div>
         </div>
@@ -213,12 +223,28 @@
     <!-- Footer -->
     <footer class="bg-gray-900 text-white py-8">
         <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
-            <p>&copy; 2024 Farm Weather Advisory. All rights reserved.</p>
+            <p>&copy; 2025 Farm Weather Advisory. All rights reserved.</p>
             <p class="mt-2 text-gray-400">Empowering farmers with smart irrigation solutions</p>
         </div>
     </footer>
 
     <!-- PWA Script -->
+    <script>
+        // Register Service Worker immediately
+        if ('serviceWorker' in navigator) {
+            window.addEventListener('load', function() {
+                navigator.serviceWorker.register('/Farm_Weather/service-worker.js')
+                    .then(function(registration) {
+                        console.log('✅ ServiceWorker registered! Scope:', registration.scope);
+                    })
+                    .catch(function(error) {
+                        console.error('❌ ServiceWorker registration failed:', error);
+                    });
+            });
+        } else {
+            console.log('❌ Service Workers not supported');
+        }
+    </script>
     <script src="js/pwa.js"></script>
 </body>
 </html>

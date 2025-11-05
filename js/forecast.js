@@ -16,7 +16,15 @@ async function load7DayForecast() {
             url += `location=${encodeURIComponent(locationQuery)}`;
         }
         
-        const response = await fetch(url);
+        // Add cache buster to prevent cached responses
+        url += `&_t=${Date.now()}`;
+        
+        const response = await fetch(url, {
+            cache: 'no-store',
+            headers: {
+                'Cache-Control': 'no-cache'
+            }
+        });
         const data = await response.json();
         
         if (data.success) {

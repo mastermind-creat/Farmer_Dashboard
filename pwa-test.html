@@ -1,0 +1,263 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>PWA Test - Farm Weather Advisory</title>
+    
+    <!-- PWA Meta Tags -->
+    <meta name="description" content="PWA Test Page">
+    <meta name="theme-color" content="#10b981">
+    <link rel="manifest" href="manifest.json">
+    
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+</head>
+<body class="bg-gray-50 p-8">
+    <div class="max-w-4xl mx-auto">
+        <h1 class="text-3xl font-bold text-gray-900 mb-6">
+            <i class="fas fa-mobile-alt text-primary mr-2"></i>
+            PWA Functionality Test
+        </h1>
+
+        <!-- Service Worker Status -->
+        <div class="bg-white rounded-lg shadow-lg p-6 mb-6">
+            <h2 class="text-xl font-bold text-gray-900 mb-4">
+                <i class="fas fa-cog text-blue-500 mr-2"></i>
+                Service Worker Status
+            </h2>
+            <div id="swStatus" class="space-y-2">
+                <p class="text-gray-600">Checking...</p>
+            </div>
+        </div>
+
+        <!-- Manifest Status -->
+        <div class="bg-white rounded-lg shadow-lg p-6 mb-6">
+            <h2 class="text-xl font-bold text-gray-900 mb-4">
+                <i class="fas fa-file-code text-green-500 mr-2"></i>
+                Manifest Status
+            </h2>
+            <div id="manifestStatus" class="space-y-2">
+                <p class="text-gray-600">Checking...</p>
+            </div>
+        </div>
+
+        <!-- Install Status -->
+        <div class="bg-white rounded-lg shadow-lg p-6 mb-6">
+            <h2 class="text-xl font-bold text-gray-900 mb-4">
+                <i class="fas fa-download text-purple-500 mr-2"></i>
+                Installation Status
+            </h2>
+            <div id="installStatus" class="space-y-2">
+                <p class="text-gray-600">Checking...</p>
+            </div>
+            <button id="installBtn" class="hidden mt-4 bg-primary text-white px-6 py-3 rounded-lg font-semibold hover:bg-secondary transition">
+                <i class="fas fa-download mr-2"></i>Install App
+            </button>
+        </div>
+
+        <!-- Browser Support -->
+        <div class="bg-white rounded-lg shadow-lg p-6 mb-6">
+            <h2 class="text-xl font-bold text-gray-900 mb-4">
+                <i class="fas fa-browser text-orange-500 mr-2"></i>
+                Browser Support
+            </h2>
+            <div id="browserSupport" class="space-y-2"></div>
+        </div>
+
+        <!-- Actions -->
+        <div class="bg-white rounded-lg shadow-lg p-6">
+            <h2 class="text-xl font-bold text-gray-900 mb-4">
+                <i class="fas fa-tools text-red-500 mr-2"></i>
+                Actions
+            </h2>
+            <div class="space-x-4">
+                <button onclick="testNotification()" class="bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600">
+                    <i class="fas fa-bell mr-2"></i>Test Notification
+                </button>
+                <button onclick="clearCache()" class="bg-red-500 text-white px-4 py-2 rounded hover:bg-red-600">
+                    <i class="fas fa-trash mr-2"></i>Clear Cache
+                </button>
+                <button onclick="location.reload()" class="bg-gray-500 text-white px-4 py-2 rounded hover:bg-gray-600">
+                    <i class="fas fa-sync mr-2"></i>Refresh
+                </button>
+            </div>
+        </div>
+
+        <!-- Back to Home -->
+        <div class="mt-6 text-center">
+            <a href="index.html" class="text-primary hover:text-secondary font-semibold">
+                <i class="fas fa-arrow-left mr-2"></i>Back to Home
+            </a>
+        </div>
+    </div>
+
+    <script>
+        let deferredPrompt;
+
+        // Check Service Worker
+        async function checkServiceWorker() {
+            const statusDiv = document.getElementById('swStatus');
+            
+            if ('serviceWorker' in navigator) {
+                try {
+                    const registration = await navigator.serviceWorker.getRegistration();
+                    if (registration) {
+                        statusDiv.innerHTML = `
+                            <p class="text-green-600 font-semibold">✅ Service Worker Registered</p>
+                            <p class="text-sm text-gray-600">Scope: ${registration.scope}</p>
+                            <p class="text-sm text-gray-600">State: ${registration.active ? 'Active' : 'Installing'}</p>
+                        `;
+                    } else {
+                        statusDiv.innerHTML = `
+                            <p class="text-yellow-600 font-semibold">⚠️ Service Worker Not Registered</p>
+                            <p class="text-sm text-gray-600">Attempting to register...</p>
+                        `;
+                        registerServiceWorker();
+                    }
+                } catch (error) {
+                    statusDiv.innerHTML = `
+                        <p class="text-red-600 font-semibold">❌ Error: ${error.message}</p>
+                    `;
+                }
+            } else {
+                statusDiv.innerHTML = `
+                    <p class="text-red-600 font-semibold">❌ Service Workers not supported</p>
+                `;
+            }
+        }
+
+        // Register Service Worker
+        async function registerServiceWorker() {
+            try {
+                const swPath = '/Farm_Weather/service-worker.js';
+                const registration = await navigator.serviceWorker.register(swPath);
+                console.log('Service Worker registered:', registration);
+                setTimeout(checkServiceWorker, 1000);
+            } catch (error) {
+                console.error('Service Worker registration failed:', error);
+            }
+        }
+
+        // Check Manifest
+        async function checkManifest() {
+            const statusDiv = document.getElementById('manifestStatus');
+            
+            try {
+                const response = await fetch('manifest.json');
+                if (response.ok) {
+                    const manifest = await response.json();
+                    statusDiv.innerHTML = `
+                        <p class="text-green-600 font-semibold">✅ Manifest Found</p>
+                        <p class="text-sm text-gray-600">Name: ${manifest.name}</p>
+                        <p class="text-sm text-gray-600">Short Name: ${manifest.short_name}</p>
+                        <p class="text-sm text-gray-600">Icons: ${manifest.icons.length}</p>
+                    `;
+                } else {
+                    statusDiv.innerHTML = `
+                        <p class="text-red-600 font-semibold">❌ Manifest not found (${response.status})</p>
+                    `;
+                }
+            } catch (error) {
+                statusDiv.innerHTML = `
+                    <p class="text-red-600 font-semibold">❌ Error loading manifest: ${error.message}</p>
+                `;
+            }
+        }
+
+        // Check Installation
+        function checkInstallation() {
+            const statusDiv = document.getElementById('installStatus');
+            const installBtn = document.getElementById('installBtn');
+            
+            // Check if already installed
+            if (window.matchMedia('(display-mode: standalone)').matches || window.navigator.standalone) {
+                statusDiv.innerHTML = `
+                    <p class="text-green-600 font-semibold">✅ App is Installed</p>
+                    <p class="text-sm text-gray-600">Running in standalone mode</p>
+                `;
+            } else {
+                statusDiv.innerHTML = `
+                    <p class="text-yellow-600 font-semibold">⚠️ App Not Installed</p>
+                    <p class="text-sm text-gray-600">You can install it for offline access</p>
+                `;
+            }
+        }
+
+        // Check Browser Support
+        function checkBrowserSupport() {
+            const supportDiv = document.getElementById('browserSupport');
+            const features = [
+                { name: 'Service Workers', supported: 'serviceWorker' in navigator },
+                { name: 'Push Notifications', supported: 'Notification' in window },
+                { name: 'Background Sync', supported: 'sync' in ServiceWorkerRegistration.prototype },
+                { name: 'Cache API', supported: 'caches' in window },
+                { name: 'IndexedDB', supported: 'indexedDB' in window }
+            ];
+            
+            let html = '<ul class="space-y-2">';
+            features.forEach(feature => {
+                const icon = feature.supported ? '✅' : '❌';
+                const color = feature.supported ? 'text-green-600' : 'text-red-600';
+                html += `<li class="${color}">${icon} ${feature.name}</li>`;
+            });
+            html += '</ul>';
+            
+            supportDiv.innerHTML = html;
+        }
+
+        // Handle install prompt
+        window.addEventListener('beforeinstallprompt', (e) => {
+            e.preventDefault();
+            deferredPrompt = e;
+            
+            const installBtn = document.getElementById('installBtn');
+            installBtn.classList.remove('hidden');
+            
+            installBtn.onclick = async () => {
+                if (deferredPrompt) {
+                    deferredPrompt.prompt();
+                    const { outcome } = await deferredPrompt.userChoice;
+                    console.log('Install outcome:', outcome);
+                    deferredPrompt = null;
+                    installBtn.classList.add('hidden');
+                }
+            };
+        });
+
+        // Test notification
+        async function testNotification() {
+            if ('Notification' in window) {
+                const permission = await Notification.requestPermission();
+                if (permission === 'granted') {
+                    new Notification('PWA Test', {
+                        body: 'Notifications are working! 🎉',
+                        icon: 'data:image/svg+xml,%3Csvg xmlns=\'http://www.w3.org/2000/svg\' viewBox=\'0 0 192 192\'%3E%3Crect fill=\'%2310b981\' width=\'192\' height=\'192\'/%3E%3Ctext x=\'96\' y=\'120\' font-size=\'80\' text-anchor=\'middle\' fill=\'white\'%3E🌾%3C/text%3E%3C/svg%3E'
+                    });
+                } else {
+                    alert('Notification permission denied');
+                }
+            } else {
+                alert('Notifications not supported');
+            }
+        }
+
+        // Clear cache
+        async function clearCache() {
+            if ('caches' in window) {
+                const cacheNames = await caches.keys();
+                await Promise.all(cacheNames.map(name => caches.delete(name)));
+                alert('Cache cleared! Refresh the page.');
+            }
+        }
+
+        // Run checks on load
+        window.addEventListener('load', () => {
+            checkServiceWorker();
+            checkManifest();
+            checkInstallation();
+            checkBrowserSupport();
+        });
+    </script>
+</body>
+</html>

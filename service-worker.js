@@ -4,23 +4,22 @@ const urlsToCache = [
   '/Farm_Weather/',
   '/Farm_Weather/index.html',
   '/Farm_Weather/dashboard.html',
-  '/Farm_Weather/dashboard_iot.html',
-  '/Farm_Weather/login.html',
-  '/Farm_Weather/register.html',
-  '/Farm_Weather/js/dashboard.js',
-  '/Farm_Weather/js/dashboard_iot.js',
-  'https://cdn.tailwindcss.com',
-  'https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css',
-  'https://cdn.jsdelivr.net/npm/chart.js'
+  '/Farm_Weather/manifest.json'
 ];
 
 // Install event - cache resources
 self.addEventListener('install', (event) => {
+  console.log('Service Worker: Installing...');
   event.waitUntil(
     caches.open(CACHE_NAME)
       .then((cache) => {
-        console.log('Opened cache');
-        return cache.addAll(urlsToCache);
+        console.log('Service Worker: Caching files');
+        return cache.addAll(urlsToCache).catch(err => {
+          console.error('Service Worker: Cache failed', err);
+        });
+      })
+      .then(() => {
+        console.log('Service Worker: Installed successfully');
       })
   );
   self.skipWaiting();

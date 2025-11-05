@@ -36,12 +36,29 @@ async function checkAuth() {
             body: 'action=check'
         });
         
+        const data = await response.json();
+        
         // If not authenticated, redirect to login
-        if (!response.ok) {
+        if (!data.authenticated) {
+            console.log('User not authenticated, redirecting to login...');
             window.location.href = 'login.html';
+            return false;
         }
+        
+        // Display user name
+        if (data.user && data.user.name) {
+            const userNameElement = document.getElementById('userName');
+            if (userNameElement) {
+                userNameElement.textContent = data.user.name;
+            }
+        }
+        
+        return true;
     } catch (error) {
         console.error('Auth check failed:', error);
+        // Redirect to login on error
+        window.location.href = 'login.html';
+        return false;
     }
 }
 
@@ -80,7 +97,15 @@ async function loadWeatherData() {
             url += `location=${encodeURIComponent(locationQuery)}`;
         }
         
-        const response = await fetch(url);
+        // Add cache buster to prevent cached responses
+        url += `&_t=${Date.now()}`;
+        
+        const response = await fetch(url, {
+            cache: 'no-store',
+            headers: {
+                'Cache-Control': 'no-cache'
+            }
+        });
         const data = await response.json();
         
         if (data.success) {
@@ -413,9 +438,17 @@ document.getElementById('profileForm').addEventListener('submit', async (e) => {
         
         if (data.success) {
             closeProfileModal();
+            
+            // Reload profile and refresh all weather data
             await loadFarmProfile();
             await loadWeatherData();
-            alert('Farm profile saved successfully!');
+            
+            // Reload 7-day forecast if function exists
+            if (typeof load7DayForecast === 'function') {
+                await load7DayForecast();
+            }
+            
+            alert('Farm profile saved successfully! Weather data updated for ' + document.getElementById('location').value);
         } else {
             alert('Error: ' + data.message);
         }
@@ -434,6 +467,11 @@ async function refreshWeather() {
         </div>
     `;
     await loadWeatherData();
+    
+    // Also refresh 7-day forecast
+    if (typeof load7DayForecast === 'function') {
+        await load7DayForecast();
+    }
 }
 
 // Logout function

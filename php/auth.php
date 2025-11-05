@@ -107,6 +107,20 @@ if ($action === 'register') {
     session_destroy();
     echo json_encode(['success' => true, 'message' => 'Logged out successfully']);
     
+} elseif ($action === 'check') {
+    // Check if user is logged in
+    if (isset($_SESSION['user_id'])) {
+        echo json_encode([
+            'authenticated' => true,
+            'user' => [
+                'id' => $_SESSION['user_id'],
+                'name' => $_SESSION['user_name'] ?? 'User'
+            ]
+        ]);
+    } else {
+        echo json_encode(['authenticated' => false]);
+    }
+    
 } else {
     echo json_encode(['success' => false, 'message' => 'Invalid action']);
 }

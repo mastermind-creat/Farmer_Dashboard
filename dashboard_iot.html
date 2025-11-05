@@ -4,6 +4,13 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>IoT Dashboard - Farm Weather Advisory</title>
+    
+    <!-- PWA Meta Tags -->
+    <meta name="description" content="IoT-enabled smart irrigation dashboard">
+    <meta name="theme-color" content="#10b981">
+    <link rel="manifest" href="manifest.json">
+    <link rel="apple-touch-icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 192 192'%3E%3Crect fill='%2310b981' width='192' height='192'/%3E%3Ctext x='96' y='120' font-size='80' text-anchor='middle' fill='white'%3E🌾%3C/text%3E%3C/svg%3E">
+    
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
@@ -45,18 +52,32 @@
     <!-- Navigation -->
     <nav class="bg-white shadow-lg">
         <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-            <div class="flex justify-between h-16">
-                <div class="flex items-center">
-                    <i class="fas fa-seedling text-primary text-3xl mr-3"></i>
-                    <span class="text-2xl font-bold text-gray-800">Smart IoT Dashboard</span>
+            <div class="flex justify-between items-center h-16">
+                <!-- Logo -->
+                <div class="flex items-center flex-shrink-0">
+                    <i class="fas fa-seedling text-primary text-2xl sm:text-3xl mr-2"></i>
+                    <span class="text-lg sm:text-2xl font-bold text-gray-800 hidden md:inline">Smart IoT Dashboard</span>
+                    <span class="text-lg font-bold text-gray-800 md:hidden">IoT Dashboard</span>
                 </div>
-                <div class="flex items-center space-x-4">
-                    <a href="dashboard.html" class="text-gray-700 hover:text-primary transition">
+                
+                <!-- Desktop Navigation -->
+                <div class="hidden md:flex items-center space-x-4">
+                    <a href="dashboard.html" class="text-gray-700 hover:text-primary transition font-medium flex items-center">
                         <i class="fas fa-chart-line mr-2"></i>Classic View
                     </a>
                     <span id="userName" class="text-gray-700"></span>
                     <button onclick="logout()" class="text-red-600 hover:text-red-700 transition">
                         <i class="fas fa-sign-out-alt text-xl"></i>
+                    </button>
+                </div>
+                
+                <!-- Mobile Navigation -->
+                <div class="flex md:hidden items-center space-x-3">
+                    <a href="dashboard.html" class="text-gray-700 hover:text-primary transition" title="Classic View">
+                        <i class="fas fa-chart-line text-xl"></i>
+                    </a>
+                    <button onclick="logout()" class="text-red-600 hover:text-red-700 transition" title="Logout">
+                        <i class="fas fa-sign-out-alt text-lg"></i>
                     </button>
                 </div>
             </div>
@@ -252,6 +273,197 @@
             </div>
         </div>
 
+        <!-- Advanced Analytics Dashboard -->
+        <div class="mb-8">
+            <div class="flex flex-col sm:flex-row items-start sm:items-center justify-between mb-4 gap-3">
+                <h2 class="text-2xl font-bold text-gray-900 flex items-center">
+                    <i class="fas fa-chart-line text-blue-500 mr-2"></i>
+                    Advanced Analytics & Insights
+                </h2>
+                <button onclick="exportAnalytics()" class="bg-blue-500 text-white px-4 py-2 rounded-lg hover:bg-blue-600 transition flex items-center">
+                    <i class="fas fa-download mr-2"></i>Export Report
+                </button>
+            </div>
+
+            <!-- Analytics Cards Row 1 -->
+            <div class="grid md:grid-cols-4 gap-4 mb-6">
+                <!-- Water Usage Card -->
+                <div class="bg-gradient-to-br from-blue-500 to-blue-600 rounded-xl shadow-lg p-6 text-white">
+                    <div class="flex items-center justify-between mb-2">
+                        <i class="fas fa-tint text-3xl opacity-80"></i>
+                        <span class="text-xs bg-white bg-opacity-20 px-2 py-1 rounded">Today</span>
+                    </div>
+                    <h3 class="text-sm font-medium opacity-90">Water Used</h3>
+                    <p id="waterUsedToday" class="text-3xl font-bold mt-2">0 L</p>
+                    <p class="text-xs mt-2 opacity-80">
+                        <span id="waterTrend">↑ 12%</span> vs yesterday
+                    </p>
+                </div>
+
+                <!-- Cost Savings Card -->
+                <div class="bg-gradient-to-br from-green-500 to-green-600 rounded-xl shadow-lg p-6 text-white">
+                    <div class="flex items-center justify-between mb-2">
+                        <i class="fas fa-coins text-3xl opacity-80"></i>
+                        <span class="text-xs bg-white bg-opacity-20 px-2 py-1 rounded">Month</span>
+                    </div>
+                    <h3 class="text-sm font-medium opacity-90">Cost Savings</h3>
+                    <p id="costSavings" class="text-3xl font-bold mt-2">KSh 0</p>
+                    <p class="text-xs mt-2 opacity-80">vs manual irrigation</p>
+                </div>
+
+                <!-- Efficiency Card -->
+                <div class="bg-gradient-to-br from-purple-500 to-purple-600 rounded-xl shadow-lg p-6 text-white">
+                    <div class="flex items-center justify-between mb-2">
+                        <i class="fas fa-chart-pie text-3xl opacity-80"></i>
+                        <span class="text-xs bg-white bg-opacity-20 px-2 py-1 rounded">Live</span>
+                    </div>
+                    <h3 class="text-sm font-medium opacity-90">Efficiency</h3>
+                    <p id="efficiency" class="text-3xl font-bold mt-2">0%</p>
+                    <p class="text-xs mt-2 opacity-80">Optimal: 85-95%</p>
+                </div>
+
+                <!-- Yield Prediction Card -->
+                <div class="bg-gradient-to-br from-orange-500 to-orange-600 rounded-xl shadow-lg p-6 text-white">
+                    <div class="flex items-center justify-between mb-2">
+                        <i class="fas fa-seedling text-3xl opacity-80"></i>
+                        <span class="text-xs bg-white bg-opacity-20 px-2 py-1 rounded">Forecast</span>
+                    </div>
+                    <h3 class="text-sm font-medium opacity-90">Yield Prediction</h3>
+                    <p id="yieldPrediction" class="text-3xl font-bold mt-2">+0%</p>
+                    <p class="text-xs mt-2 opacity-80">vs baseline</p>
+                </div>
+            </div>
+
+            <!-- Analytics Charts Row 2 -->
+            <div class="grid lg:grid-cols-2 gap-6 mb-6">
+                <!-- Water Usage Trends -->
+                <div class="bg-white rounded-xl shadow-lg p-6" style="height: 400px;">
+                    <div class="flex justify-between items-center mb-4">
+                        <h3 class="text-xl font-bold text-gray-900">Water Usage Trends</h3>
+                        <select id="waterTrendPeriod" onchange="updateWaterTrends()" class="px-3 py-1 border rounded text-sm">
+                            <option value="daily">Daily</option>
+                            <option value="weekly">Weekly</option>
+                            <option value="monthly">Monthly</option>
+                        </select>
+                    </div>
+                    <div style="height: 280px; position: relative;">
+                        <canvas id="waterTrendChart"></canvas>
+                    </div>
+                </div>
+
+                <!-- ROI Analysis -->
+                <div class="bg-white rounded-xl shadow-lg p-6" style="height: 400px;">
+                    <h3 class="text-xl font-bold text-gray-900 mb-4">ROI Analysis</h3>
+                    <div class="space-y-4">
+                        <div class="flex justify-between items-center p-3 bg-gray-50 rounded">
+                            <span class="text-gray-700">Initial Investment</span>
+                            <span class="font-bold text-gray-900">KSh 50,000</span>
+                        </div>
+                        <div class="flex justify-between items-center p-3 bg-gray-50 rounded">
+                            <span class="text-gray-700">Monthly Savings</span>
+                            <span class="font-bold text-green-600" id="monthlySavings">KSh 0</span>
+                        </div>
+                        <div class="flex justify-between items-center p-3 bg-gray-50 rounded">
+                            <span class="text-gray-700">Payback Period</span>
+                            <span class="font-bold text-blue-600" id="paybackPeriod">-- months</span>
+                        </div>
+                        <div class="flex justify-between items-center p-3 bg-green-50 rounded border-2 border-green-200">
+                            <span class="text-gray-700 font-semibold">Total ROI</span>
+                            <span class="font-bold text-green-600 text-xl" id="totalROI">0%</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Comparative Analytics & Weather Impact -->
+            <div class="grid lg:grid-cols-2 gap-6 mb-8">
+                <!-- Comparative Analytics -->
+                <div class="bg-white rounded-xl shadow-lg p-6" style="height: 450px;">
+                    <h3 class="text-xl font-bold text-gray-900 mb-4">Comparative Analytics</h3>
+                    <div style="height: 250px; position: relative;">
+                        <canvas id="comparativeChart"></canvas>
+                    </div>
+                    <div class="mt-4 grid grid-cols-2 gap-4">
+                        <div class="text-center p-3 bg-blue-50 rounded">
+                            <p class="text-sm text-gray-600">Your Farm</p>
+                            <p class="text-2xl font-bold text-blue-600" id="yourFarmUsage">-- L</p>
+                        </div>
+                        <div class="text-center p-3 bg-gray-50 rounded">
+                            <p class="text-sm text-gray-600">County Average</p>
+                            <p class="text-2xl font-bold text-gray-600" id="countyAverage">-- L</p>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Weather Impact Analysis -->
+                <div class="bg-white rounded-xl shadow-lg p-6" style="height: 450px; overflow-y: auto;">
+                    <h3 class="text-xl font-bold text-gray-900 mb-4">Weather Impact Analysis</h3>
+                    <div class="space-y-3">
+                        <div class="flex items-center justify-between p-3 bg-yellow-50 rounded">
+                            <div class="flex items-center">
+                                <i class="fas fa-sun text-yellow-500 text-xl mr-3"></i>
+                                <span class="text-gray-700">Sunny Days Impact</span>
+                            </div>
+                            <span class="font-bold text-yellow-600">+25% usage</span>
+                        </div>
+                        <div class="flex items-center justify-between p-3 bg-blue-50 rounded">
+                            <div class="flex items-center">
+                                <i class="fas fa-cloud-rain text-blue-500 text-xl mr-3"></i>
+                                <span class="text-gray-700">Rainy Days Impact</span>
+                            </div>
+                            <span class="font-bold text-blue-600">-60% usage</span>
+                        </div>
+                        <div class="flex items-center justify-between p-3 bg-gray-50 rounded">
+                            <div class="flex items-center">
+                                <i class="fas fa-cloud text-gray-500 text-xl mr-3"></i>
+                                <span class="text-gray-700">Cloudy Days Impact</span>
+                            </div>
+                            <span class="font-bold text-gray-600">-15% usage</span>
+                        </div>
+                        <div class="mt-4 p-4 bg-green-50 rounded border border-green-200">
+                            <p class="text-sm text-gray-700 mb-2">
+                                <i class="fas fa-lightbulb text-green-500 mr-2"></i>
+                                <strong>Insight:</strong>
+                            </p>
+                            <p class="text-sm text-gray-600" id="weatherInsight">
+                                Your automated system has saved 45% water during rainy periods this month.
+                            </p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Seasonal Patterns -->
+            <div class="bg-white rounded-xl shadow-lg p-6 mb-6">
+                <h3 class="text-xl font-bold text-gray-900 mb-4">Seasonal Patterns & Predictions</h3>
+                <div style="height: 250px; position: relative;" class="mb-4">
+                    <canvas id="seasonalChart"></canvas>
+                </div>
+                <div class="grid grid-cols-2 md:grid-cols-4 gap-3">
+                    <div class="text-center p-3 bg-blue-50 rounded">
+                        <i class="fas fa-snowflake text-blue-500 text-2xl mb-2"></i>
+                        <p class="text-xs md:text-sm text-gray-600">Dry Season</p>
+                        <p class="text-sm md:text-base font-bold text-gray-900">High Usage</p>
+                    </div>
+                    <div class="text-center p-3 bg-green-50 rounded">
+                        <i class="fas fa-cloud-rain text-green-500 text-2xl mb-2"></i>
+                        <p class="text-xs md:text-sm text-gray-600">Rainy Season</p>
+                        <p class="text-sm md:text-base font-bold text-gray-900">Low Usage</p>
+                    </div>
+                    <div class="text-center p-3 bg-yellow-50 rounded">
+                        <i class="fas fa-sun text-yellow-500 text-2xl mb-2"></i>
+                        <p class="text-xs md:text-sm text-gray-600">Peak Summer</p>
+                        <p class="text-sm md:text-base font-bold text-gray-900">Very High</p>
+                    </div>
+                    <div class="text-center p-3 bg-purple-50 rounded">
+                        <i class="fas fa-leaf text-purple-500 text-2xl mb-2"></i>
+                        <p class="text-xs md:text-sm text-gray-600">Spring</p>
+                        <p class="text-sm md:text-base font-bold text-gray-900">Moderate</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+
         <!-- Future Integration Section -->
         <div class="bg-gradient-to-r from-purple-500 to-indigo-600 rounded-xl shadow-lg p-6 text-white">
             <div class="flex items-start justify-between">
@@ -288,6 +500,52 @@
         </div>
     </div>
 
+    <script>
+        // Immediate authentication check (before page renders)
+        (async function() {
+            try {
+                const response = await fetch('php/auth.php', {
+                    method: 'POST',
+                    headers: { 
+                        'Content-Type': 'application/x-www-form-urlencoded',
+                        'Cache-Control': 'no-cache'
+                    },
+                    credentials: 'same-origin',
+                    body: 'action=check'
+                });
+                
+                if (!response.ok) {
+                    console.log('Response not OK, redirecting to login');
+                    window.location.href = 'login.html';
+                    return;
+                }
+                
+                const data = await response.json();
+                console.log('Auth check result:', data);
+                
+                if (!data.authenticated) {
+                    console.log('Not authenticated, redirecting to login');
+                    window.location.href = 'login.html';
+                }
+            } catch (error) {
+                console.error('Auth check failed:', error);
+                // Don't redirect on error - let the DOMContentLoaded check handle it
+            }
+        })();
+        
+        // Register Service Worker immediately
+        if ('serviceWorker' in navigator) {
+            window.addEventListener('load', function() {
+                navigator.serviceWorker.register('/Farm_Weather/service-worker.js')
+                    .then(function(registration) {
+                        console.log('✅ ServiceWorker registered! Scope:', registration.scope);
+                    })
+                    .catch(function(error) {
+                        console.error('❌ ServiceWorker registration failed:', error);
+                    });
+            });
+        }
+    </script>
     <script src="js/dashboard_iot.js"></script>
 </body>
 </html>

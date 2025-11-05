@@ -5,12 +5,24 @@ let installButton;
 // Register service worker
 if ('serviceWorker' in navigator) {
   window.addEventListener('load', () => {
-    navigator.serviceWorker.register('/Farm_Weather/service-worker.js')
+    // Use relative path for service worker
+    const swPath = window.location.pathname.includes('/Farm_Weather/') 
+      ? '/Farm_Weather/service-worker.js' 
+      : './service-worker.js';
+    
+    navigator.serviceWorker.register(swPath)
       .then((registration) => {
-        console.log('ServiceWorker registered:', registration.scope);
+        console.log('✅ ServiceWorker registered successfully!');
+        console.log('Scope:', registration.scope);
+        
+        // Show success message
+        setTimeout(() => {
+          console.log('PWA is ready! You can install the app.');
+        }, 1000);
       })
       .catch((error) => {
-        console.log('ServiceWorker registration failed:', error);
+        console.error('❌ ServiceWorker registration failed:', error);
+        console.log('PWA features may not work properly');
       });
   });
 }
